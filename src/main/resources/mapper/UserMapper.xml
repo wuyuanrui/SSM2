@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wyr.mapper.UserMapper">
+    <!--开启二级缓存-->
+    <cache/>
+    <!--传递集合-->
+    <!--不写paraterType，自动-->
+    <!--手动制定参数类型-->
+    <select id="listu" useCache="true" parameterType="Map" resultType="User" >
+        select * from users where uid in <foreach collection="list" open="(" separator="," close=")" item="it">${it}</foreach>
+    </select>
+    
+    <!--传递多个值-->
+    <insert id="addParam" parameterType="map">
+        insert into users values(null,#{0},#{1})
+    </insert>
+    
+    <!--传递多个值对象-->
+    <insert id="addMap">
+        insert into users values
+        <foreach collection="list" item="it" separator=",">
+            (
+            null,
+            #{it.uname},
+            #{it.usex})
+        </foreach>
+    </insert>
+
+    <!--对象插入-->
+    <insert id="add" parameterType="User" keyProperty="uid"  useGeneratedKeys="true" >
+      insert into users values(null,#{uname},#{usex})
+    </insert>
+
+      <!--动态模糊查询-->
+    <!--where自动去除and和or-->
+    <select id="seclctlike" parameterType="String"  resultType="User">
+        select * from users
+        <trim prefix="where"  prefixOverrides="||and||or">
+                <if test="0!=null">and  uname='Rose'</if>
+        </trim>
+
+    </select>
+
+
+    <!--动态sql修改-->
+    <!--set自动去除 ，号-->
+    <update id="update">
+        update users
+              <trim prefix="set" suffixOverrides=",">
+                  <if test="0!=null">
+                      #{uname},
+                  </if>
+                  <if test="1!=null">
+                      #{usex}
+                  </if>
+              </trim>
+        where uid=#{uid}
+    </update>
+
+    
+    
+</mapper>
